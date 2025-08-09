@@ -12,7 +12,7 @@ export type FieldType =
 export interface ValidationRules {
   minLength?: number;
   maxLength?: number;
-  email?: boolean;
+  email?: boolean; // ✅ fixed property name
   passwordRule?: boolean;
 }
 

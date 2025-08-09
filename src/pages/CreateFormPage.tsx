@@ -123,7 +123,7 @@ export default function CreateFormPage() {
         }}
       >
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={8}>
+          <Grid>
             <TextField
               fullWidth
               size="small"
@@ -139,7 +139,7 @@ export default function CreateFormPage() {
               }}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid >
             <Button
               fullWidth
               variant="contained"
@@ -163,7 +163,7 @@ export default function CreateFormPage() {
           </Typography>
         </Box>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={8} md={9}>
+          <Grid >
             <FormControl fullWidth size="small">
               <InputLabel>Field Type</InputLabel>
               <Select
@@ -180,7 +180,7 @@ export default function CreateFormPage() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={4} md={3}>
+          <Grid >
             <Button
               fullWidth
               variant="contained"
@@ -265,7 +265,7 @@ export default function CreateFormPage() {
               {/* Field Config */}
               <Grid container spacing={3}>
                 {/* Basic Settings */}
-                <Grid item xs={12} md={6}>
+                <Grid >
                   <Typography variant="subtitle2" fontWeight={600} mb={1}>
                     Basic Settings
                   </Typography>
@@ -321,12 +321,12 @@ export default function CreateFormPage() {
                 </Grid>
 
                 {/* Validation */}
-                <Grid item xs={12} md={6}>
+                <Grid >
                   <Typography variant="subtitle2" fontWeight={600} mb={1}>
                     Validation Rules
                   </Typography>
                   <Grid container spacing={2}>
-                    <Grid item xs={6}>
+                    <Grid >
                       <TextField
                         fullWidth
                         type="number"
@@ -347,7 +347,7 @@ export default function CreateFormPage() {
                         }
                       />
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid >
                       <TextField
                         fullWidth
                         type="number"
@@ -414,7 +414,7 @@ export default function CreateFormPage() {
                 {(f.type === "radio" ||
                   f.type === "checkbox" ||
                   f.type === "select") && (
-                  <Grid item xs={12}>
+                  <Grid >
                     <Typography variant="subtitle2" fontWeight={600} mb={1}>
                       Options
                     </Typography>
