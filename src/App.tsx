@@ -24,7 +24,6 @@ export default function App() {
           </Toolbar>
         </AppBar>
         <Routes>
-        
           <Route path="/" element={<CreateFormPage />} />
           <Route path="/create" element={<CreateFormPage />} />
           <Route path="/preview" element={<PreviewPage />} />
