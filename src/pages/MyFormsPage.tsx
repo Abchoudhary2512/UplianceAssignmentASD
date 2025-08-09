@@ -32,15 +32,15 @@ export default function MyFormsPage() {
   };
 
   return (
-    <Paper
-      sx={{
-        p: { xs: 2, md: 3 },
-        m: 2,
-        borderRadius: theme.shape.borderRadius * 2,
-        backgroundColor: theme.palette.background.paper,
-      }}
-      elevation={3}
-    >
+  <Paper
+  sx={{
+    p: { xs: 2, md: 3 },
+    m: 2,
+    borderRadius: Number(theme.shape.borderRadius) * 2,
+    backgroundColor: theme.palette.background.paper,
+  }}
+  elevation={3}
+>
       <Stack
         direction="row"
         justifyContent="space-between"
