@@ -317,7 +317,7 @@ export default function CreateFormPage() {
 
               <Grid container spacing={3} sx={{ mb: 4 }}>
                 {fieldTypes.map((fieldType, index) => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={fieldType.value}>
+                  <Grid >
                     <Fade in timeout={1600 + index * 100}>
                       <Card
                         sx={{
@@ -590,7 +590,7 @@ export default function CreateFormPage() {
                     <Box sx={{ p: 4 }}>
                       <Grid container spacing={4}>
                         {/* Basic Settings */}
-                        <Grid item xs={12} md={6}>
+                        <Grid >
                           <Paper
                             elevation={4}
                             sx={{
@@ -699,7 +699,7 @@ export default function CreateFormPage() {
                         </Grid>
 
                         {/* Validation Rules */}
-                        <Grid item xs={12} md={6}>
+                        <Grid >
                           <Paper
                             elevation={4}
                             sx={{
@@ -724,7 +724,7 @@ export default function CreateFormPage() {
                               Validation Rules
                             </Typography>
                             <Grid container spacing={2} sx={{ mb: 3 }}>
-                              <Grid item xs={6}>
+                              <Grid >
                                 <TextField
                                   fullWidth
                                   type="number"
@@ -756,7 +756,7 @@ export default function CreateFormPage() {
                                   }}
                                 />
                               </Grid>
-                              <Grid item xs={6}>
+                              <Grid >
                                 <TextField
                                   fullWidth
                                   type="number"
@@ -857,7 +857,7 @@ export default function CreateFormPage() {
                         {(f.type === "radio" ||
                           f.type === "checkbox" ||
                           f.type === "select") && (
-                          <Grid item xs={12}>
+                          <Grid >
                             <Paper
                               elevation={4}
                               sx={{
