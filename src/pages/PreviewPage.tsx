@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Box,
   Typography,
@@ -50,7 +51,7 @@ const fieldTypeIcons = {
 
 const fieldTypeColors = {
   text: "#4CAF50",
-  number: "#2196F3", 
+  number: "#2196F3",
   textarea: "#FF9800",
   select: "#9C27B0",
   radio: "#E91E63",
@@ -67,21 +68,23 @@ export default function PreviewFormPage() {
   const validateField = (field: any, value: string | string[]) => {
     let error = "";
 
+    const stringValue = typeof value === "string" ? value : value.join(", ");
+
     // Required
-    if (field.required && !value?.toString().trim()) {
+    if (field.required && !stringValue.trim()) {
       error = "This field is required";
     }
 
     // Min length
     if (!error && field.validation?.minLength) {
-      if (value?.length < field.validation.minLength) {
+      if (stringValue.length < field.validation.minLength) {
         error = `Minimum length is ${field.validation.minLength}`;
       }
     }
 
     // Max length
     if (!error && field.validation?.maxLength) {
-      if (value?.length > field.validation.maxLength) {
+      if (stringValue.length > field.validation.maxLength) {
         error = `Maximum length is ${field.validation.maxLength}`;
       }
     }
@@ -89,7 +92,7 @@ export default function PreviewFormPage() {
     // Email format
     if (!error && field.validation?.email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (value && !emailRegex.test(value)) {
+      if (typeof value === "string" && value && !emailRegex.test(value)) {
         error = "Invalid email format";
       }
     }
@@ -97,9 +100,8 @@ export default function PreviewFormPage() {
     // Password rule
     if (!error && field.validation?.passwordRule) {
       const passwordRegex = /^(?=.*\d).{8,}$/;
-      if (value && !passwordRegex.test(value)) {
-        error =
-          "Password must be at least 8 characters and contain a number";
+      if (typeof value === "string" && value && !passwordRegex.test(value)) {
+        error = "Password must be at least 8 characters and contain a number";
       }
     }
 
@@ -110,8 +112,12 @@ export default function PreviewFormPage() {
     setValues((prev) => {
       const newValues = { ...prev, [id]: value };
       // Update progress
-      const filledFields = Object.values(newValues).filter(v => 
-        v !== "" && v !== undefined && v !== null && (!Array.isArray(v) || v.length > 0)
+      const filledFields = Object.values(newValues).filter(
+        (v) =>
+          v !== "" &&
+          v !== undefined &&
+          v !== null &&
+          (!Array.isArray(v) || v.length > 0)
       ).length;
       setFormProgress((filledFields / form.length) * 100);
       return newValues;
@@ -121,8 +127,6 @@ export default function PreviewFormPage() {
       [id]: validateField(form.find((f) => f.id === id), value),
     }));
   };
-
-
 
   return (
     <Box
@@ -137,9 +141,10 @@ export default function PreviewFormPage() {
           left: 0,
           right: 0,
           height: "300px",
-          background: "linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)",
+          background:
+            "linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)",
           zIndex: 0,
-        }
+        },
       }}
     >
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
@@ -152,7 +157,8 @@ export default function PreviewFormPage() {
                   width: 80,
                   height: 80,
                   margin: "0 auto 24px",
-                  background: "linear-gradient(135deg, #4ECDC4 0%, #667eea 100%)",
+                  background:
+                    "linear-gradient(135deg, #4ECDC4 0%, #667eea 100%)",
                   boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
                 }}
               >
@@ -165,7 +171,7 @@ export default function PreviewFormPage() {
                   color: "white",
                   mb: 2,
                   textShadow: "0 4px 12px rgba(0,0,0,0.3)",
-                  fontSize: { xs: "2.5rem", md: "3.5rem" }
+                  fontSize: { xs: "2.5rem", md: "3.5rem" },
                 }}
               >
                 Form Preview
@@ -207,7 +213,8 @@ export default function PreviewFormPage() {
                   width: 120,
                   height: 120,
                   margin: "0 auto 24px",
-                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  background:
+                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                   boxShadow: "0 8px 32px rgba(102, 126, 234, 0.3)",
                 }}
               >
@@ -228,13 +235,15 @@ export default function PreviewFormPage() {
                   borderRadius: 3,
                   px: 4,
                   py: 1.5,
-                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  background:
+                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                   boxShadow: "0 6px 24px rgba(102, 126, 234, 0.4)",
                   "&:hover": {
-                    background: "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
+                    background:
+                      "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
                     boxShadow: "0 8px 32px rgba(102, 126, 234, 0.6)",
                     transform: "translateY(-2px)",
-                  }
+                  },
                 }}
               >
                 Create Form
@@ -272,8 +281,9 @@ export default function PreviewFormPage() {
                     backgroundColor: "rgba(0,0,0,0.1)",
                     "& .MuiLinearProgress-bar": {
                       borderRadius: 4,
-                      background: "linear-gradient(135deg, #4ECDC4 0%, #667eea 100%)",
-                    }
+                      background:
+                        "linear-gradient(135deg, #4ECDC4 0%, #667eea 100%)",
+                    },
                   }}
                 />
               </Paper>
@@ -294,8 +304,14 @@ export default function PreviewFormPage() {
                   {form.map((field, index) => {
                     const value = values[field.id] || "";
                     const error = errors[field.id] || "";
-                    const fieldColor = fieldTypeColors[field.type as keyof typeof fieldTypeColors];
-                    const fieldIcon = fieldTypeIcons[field.type as keyof typeof fieldTypeIcons];
+                    const fieldColor =
+                      fieldTypeColors[
+                        field.type as keyof typeof fieldTypeColors
+                      ];
+                    const fieldIcon =
+                      fieldTypeIcons[
+                        field.type as keyof typeof fieldTypeIcons
+                      ];
 
                     return (
                       <Fade in timeout={800 + index * 100} key={field.id}>
@@ -304,18 +320,26 @@ export default function PreviewFormPage() {
                           sx={{
                             mb: 3,
                             borderRadius: 3,
-                            border: error ? "2px solid #f44336" : "2px solid transparent",
-                            background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
+                            border: error
+                              ? "2px solid #f44336"
+                              : "2px solid transparent",
+                            background:
+                              "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
                             transition: "all 0.3s ease",
                             "&:hover": {
                               transform: "translateY(-2px)",
                               boxShadow: "0 8px 25px rgba(0,0,0,0.1)",
-                            }
+                            },
                           }}
                         >
                           <Box sx={{ p: 3 }}>
                             {/* Field Header */}
-                            <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+                            <Stack
+                              direction="row"
+                              spacing={2}
+                              alignItems="center"
+                              mb={2}
+                            >
                               <Avatar
                                 sx={{
                                   width: 40,
@@ -325,7 +349,7 @@ export default function PreviewFormPage() {
                                 }}
                               >
                                 {React.cloneElement(fieldIcon, {
-                                  sx: { fontSize: 20, color: "white" }
+                                  sx: { fontSize: 20, color: "white" },
                                 })}
                               </Avatar>
                               <Box>
@@ -361,24 +385,34 @@ export default function PreviewFormPage() {
                                   return (
                                     <TextField
                                       fullWidth
-                                      type={field.type === "number" ? "number" : field.type}
+                                      type={
+                                        field.type === "number"
+                                          ? "number"
+                                          : field.type
+                                      }
                                       label={`Enter ${field.label}`}
-                                      value={value}
-                                      onChange={(e) => handleChange(field.id, e.target.value)}
+                                      value={
+                                        typeof value === "string" ? value : ""
+                                      }
+                                      onChange={(e) =>
+                                        handleChange(field.id, e.target.value)
+                                      }
                                       error={!!error}
                                       helperText={error}
                                       sx={{
                                         "& .MuiOutlinedInput-root": {
                                           borderRadius: 2,
-                                          backgroundColor: "rgba(255,255,255,0.8)",
+                                          backgroundColor:
+                                            "rgba(255,255,255,0.8)",
                                           "&:hover": {
-                                            backgroundColor: "rgba(255,255,255,0.9)",
+                                            backgroundColor:
+                                              "rgba(255,255,255,0.9)",
                                           },
                                           "&.Mui-focused": {
                                             backgroundColor: "white",
                                             boxShadow: `0 0 0 2px ${fieldColor}40`,
-                                          }
-                                        }
+                                          },
+                                        },
                                       }}
                                     />
                                   );
@@ -389,48 +423,59 @@ export default function PreviewFormPage() {
                                       multiline
                                       minRows={3}
                                       label={`Enter ${field.label}`}
-                                      value={value}
-                                      onChange={(e) => handleChange(field.id, e.target.value)}
+                                      value={
+                                        typeof value === "string" ? value : ""
+                                      }
+                                      onChange={(e) =>
+                                        handleChange(field.id, e.target.value)
+                                      }
                                       error={!!error}
                                       helperText={error}
                                       sx={{
                                         "& .MuiOutlinedInput-root": {
                                           borderRadius: 2,
-                                          backgroundColor: "rgba(255,255,255,0.8)",
+                                          backgroundColor:
+                                            "rgba(255,255,255,0.8)",
                                           "&:hover": {
-                                            backgroundColor: "rgba(255,255,255,0.9)",
+                                            backgroundColor:
+                                              "rgba(255,255,255,0.9)",
                                           },
                                           "&.Mui-focused": {
                                             backgroundColor: "white",
                                             boxShadow: `0 0 0 2px ${fieldColor}40`,
-                                          }
-                                        }
+                                          },
+                                        },
                                       }}
                                     />
                                   );
-
                                 case "select":
                                   return (
                                     <TextField
                                       select
                                       fullWidth
                                       label={`Select ${field.label}`}
-                                      value={value}
-                                      onChange={(e) => handleChange(field.id, e.target.value)}
+                                      value={
+                                        typeof value === "string" ? value : ""
+                                      }
+                                      onChange={(e) =>
+                                        handleChange(field.id, e.target.value)
+                                      }
                                       error={!!error}
                                       helperText={error}
                                       sx={{
                                         "& .MuiOutlinedInput-root": {
                                           borderRadius: 2,
-                                          backgroundColor: "rgba(255,255,255,0.8)",
+                                          backgroundColor:
+                                            "rgba(255,255,255,0.8)",
                                           "&:hover": {
-                                            backgroundColor: "rgba(255,255,255,0.9)",
+                                            backgroundColor:
+                                              "rgba(255,255,255,0.9)",
                                           },
                                           "&.Mui-focused": {
                                             backgroundColor: "white",
                                             boxShadow: `0 0 0 2px ${fieldColor}40`,
-                                          }
-                                        }
+                                          },
+                                        },
                                       }}
                                     >
                                       {field.options?.map((opt, idx) => (
@@ -440,16 +485,27 @@ export default function PreviewFormPage() {
                                       ))}
                                     </TextField>
                                   );
-
                                 case "radio":
                                   return (
                                     <Box>
-                                      <Typography variant="subtitle2" sx={{ mb: 2, color: "text.secondary" }}>
+                                      <Typography
+                                        variant="subtitle2"
+                                        sx={{ mb: 2, color: "text.secondary" }}
+                                      >
                                         Choose one option:
                                       </Typography>
                                       <RadioGroup
-                                        value={value}
-                                        onChange={(e) => handleChange(field.id, e.target.value)}
+                                        value={
+                                          typeof value === "string"
+                                            ? value
+                                            : ""
+                                        }
+                                        onChange={(e) =>
+                                          handleChange(
+                                            field.id,
+                                            e.target.value
+                                          )
+                                        }
                                       >
                                         {field.options?.map((opt, idx) => (
                                           <FormControlLabel
@@ -461,42 +517,52 @@ export default function PreviewFormPage() {
                                                   color: fieldColor,
                                                   "&.Mui-checked": {
                                                     color: fieldColor,
-                                                  }
+                                                  },
                                                 }}
                                               />
                                             }
                                             label={
-                                              <Typography variant="body1" fontWeight={500}>
+                                              <Typography
+                                                variant="body1"
+                                                fontWeight={500}
+                                              >
                                                 {opt}
                                               </Typography>
                                             }
                                             sx={{
                                               mb: 1,
                                               borderRadius: 2,
-                                              border: "1px solid rgba(0,0,0,0.1)",
+                                              border:
+                                                "1px solid rgba(0,0,0,0.1)",
                                               mx: 0,
                                               px: 2,
                                               py: 1,
                                               "&:hover": {
                                                 backgroundColor: `${fieldColor}10`,
                                                 borderColor: fieldColor,
-                                              }
+                                              },
                                             }}
                                           />
                                         ))}
                                       </RadioGroup>
                                       {error && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+                                        <Typography
+                                          variant="caption"
+                                          color="error"
+                                          sx={{ mt: 1 }}
+                                        >
                                           {error}
                                         </Typography>
                                       )}
                                     </Box>
                                   );
-
                                 case "checkbox":
                                   return (
                                     <Box>
-                                      <Typography variant="subtitle2" sx={{ mb: 2, color: "text.secondary" }}>
+                                      <Typography
+                                        variant="subtitle2"
+                                        sx={{ mb: 2, color: "text.secondary" }}
+                                      >
                                         Select all that apply:
                                       </Typography>
                                       <FormGroup>
@@ -505,52 +571,71 @@ export default function PreviewFormPage() {
                                             key={idx}
                                             control={
                                               <Checkbox
-                                                checked={Array.isArray(value) && value.includes(opt)}
+                                                checked={
+                                                  Array.isArray(value) &&
+                                                  value.includes(opt)
+                                                }
                                                 onChange={(e) => {
-                                                  let newValue = Array.isArray(value) ? [...value] : [];
+                                                  let newValue = Array.isArray(
+                                                    value
+                                                  )
+                                                    ? [...value]
+                                                    : [];
                                                   if (e.target.checked) {
                                                     newValue.push(opt);
                                                   } else {
-                                                    newValue = newValue.filter((v) => v !== opt);
+                                                    newValue = newValue.filter(
+                                                      (v) => v !== opt
+                                                    );
                                                   }
-                                                  handleChange(field.id, newValue);
+                                                  handleChange(
+                                                    field.id,
+                                                    newValue
+                                                  );
                                                 }}
                                                 sx={{
                                                   color: fieldColor,
                                                   "&.Mui-checked": {
                                                     color: fieldColor,
-                                                  }
+                                                  },
                                                 }}
                                               />
                                             }
                                             label={
-                                              <Typography variant="body1" fontWeight={500}>
+                                              <Typography
+                                                variant="body1"
+                                                fontWeight={500}
+                                              >
                                                 {opt}
                                               </Typography>
                                             }
                                             sx={{
                                               mb: 1,
                                               borderRadius: 2,
-                                              border: "1px solid rgba(0,0,0,0.1)",
+                                              border:
+                                                "1px solid rgba(0,0,0,0.1)",
                                               mx: 0,
                                               px: 2,
                                               py: 1,
                                               "&:hover": {
                                                 backgroundColor: `${fieldColor}10`,
                                                 borderColor: fieldColor,
-                                              }
+                                              },
                                             }}
                                           />
                                         ))}
                                       </FormGroup>
                                       {error && (
-                                        <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+                                        <Typography
+                                          variant="caption"
+                                          color="error"
+                                          sx={{ mt: 1 }}
+                                        >
                                           {error}
                                         </Typography>
                                       )}
                                     </Box>
                                   );
-
                                 default:
                                   return (
                                     <Alert severity="warning">
@@ -564,15 +649,11 @@ export default function PreviewFormPage() {
                       </Fade>
                     );
                   })}
-
-
                 </Box>
               </Paper>
             </Box>
           </Grow>
         )}
-
-
       </Container>
     </Box>
   );
