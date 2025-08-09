@@ -16,11 +16,6 @@ export interface ValidationRules {
   passwordRule?: boolean;
 }
 
-export interface DerivedConfig {
-  parents: string[];
-  formula: string;
-}
-
 export interface FormField {
   id: string;
   type: FieldType;
@@ -28,8 +23,7 @@ export interface FormField {
   required: boolean;
   defaultValue?: string;
   validation?: ValidationRules;
-  derived?: DerivedConfig;
-  options?: string[]; 
+  options?: string[];
 }
 
 export interface FormSchema {
@@ -42,7 +36,7 @@ export interface FormSchema {
 interface FormState {
   currentForm: FormField[];
   savedForms: FormSchema[];
-  submittedValues: Record<string, any>[];
+  submittedValues: Record<string, unknown>[];
 }
 
 const initialState: FormState = {
@@ -60,10 +54,11 @@ const formSlice = createSlice({
     },
     updateFieldProperty: (
       state,
-      action: PayloadAction<{ id: string; key: keyof FormField; value: any }>
+      action: PayloadAction<{ id: string; key: keyof FormField; value: unknown }>
     ) => {
       const field = state.currentForm.find(f => f.id === action.payload.id);
       if (field) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (field as any)[action.payload.key] = action.payload.value;
       }
     },
@@ -89,7 +84,7 @@ const formSlice = createSlice({
     loadForm: (state, action: PayloadAction<FormSchema>) => {
       state.currentForm = action.payload.fields;
     },
-    submitFormValues: (state, action: PayloadAction<Record<string, any>>) => {
+    submitFormValues: (state, action: PayloadAction<Record<string, unknown>>) => {
       state.submittedValues.push(action.payload);
       localStorage.setItem("submissions", JSON.stringify(state.submittedValues));
     },

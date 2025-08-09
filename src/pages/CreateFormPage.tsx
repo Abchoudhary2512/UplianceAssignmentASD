@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   TextField,
   MenuItem,
@@ -77,7 +78,6 @@ export default function CreateFormPage() {
         validation: {
           minLength: undefined,
           maxLength: undefined,
-          isEmail: false,
           passwordRule: false,
         },
         options:
@@ -86,9 +86,6 @@ export default function CreateFormPage() {
           newFieldType === "select"
             ? ["Option 1", "Option 2"]
             : undefined,
-        isDerived: false,
-        derivedParents: [],
-        derivedFormula: "",
       })
     );
   };
@@ -375,7 +372,6 @@ export default function CreateFormPage() {
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={f.validation?.isEmail || false}
                         onChange={(e) =>
                           dispatch(
                             updateFieldProperty({
@@ -383,7 +379,7 @@ export default function CreateFormPage() {
                               key: "validation",
                               value: {
                                 ...f.validation,
-                                isEmail: e.target.checked,
+                                email: e.target.checked,
                               },
                             })
                           )
@@ -491,83 +487,6 @@ export default function CreateFormPage() {
                     </Button>
                   </Grid>
                 )}
-
-                {/* Derived Field */}
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={f.isDerived || false}
-                        onChange={(e) =>
-                          dispatch(
-                            updateFieldProperty({
-                              id: f.id,
-                              key: "isDerived",
-                              value: e.target.checked,
-                            })
-                          )
-                        }
-                      />
-                    }
-                    label="Mark as Derived Field"
-                  />
-                  {f.isDerived && (
-                    <Box sx={{ mt: 2 }}>
-                      <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                        <InputLabel>Parent Fields</InputLabel>
-                        <Select
-                          multiple
-                          value={f.derivedParents || []}
-                          onChange={(e) =>
-                            dispatch(
-                              updateFieldProperty({
-                                id: f.id,
-                                key: "derivedParents",
-                                value: e.target.value,
-                              })
-                            )
-                          }
-                          renderValue={(selected) =>
-                            selected
-                              .map(
-                                (pid) =>
-                                  fields.find((fld) => fld.id === pid)?.label
-                              )
-                              .join(", ")
-                          }
-                        >
-                          {fields
-                            .filter((pf) => pf.id !== f.id)
-                            .map((pf) => (
-                              <MenuItem key={pf.id} value={pf.id}>
-                                <Checkbox
-                                  checked={
-                                    f.derivedParents?.indexOf(pf.id) > -1
-                                  }
-                                />
-                                <ListItemText primary={pf.label} />
-                              </MenuItem>
-                            ))}
-                        </Select>
-                      </FormControl>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        label="Derived Formula (use field labels, e.g., `${fName} ${lName}`)"
-                        value={f.derivedFormula || ""}
-                        onChange={(e) =>
-                          dispatch(
-                            updateFieldProperty({
-                              id: f.id,
-                              key: "derivedFormula",
-                              value: e.target.value,
-                            })
-                          )
-                        }
-                      />
-                    </Box>
-                  )}
-                </Grid>
               </Grid>
             </Paper>
           ))}
