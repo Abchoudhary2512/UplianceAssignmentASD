@@ -20,6 +20,7 @@ import {
   Container,
   Avatar,
 } from "@mui/material";
+import { parseISO } from "date-fns";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -655,7 +656,6 @@ export default function CreateFormPage() {
                       {/* Field Configuration */}
                       <Box sx={{ p: 4 }}>
                         <Grid container spacing={4}>
-                         
                           <Grid>
                             <Paper
                               elevation={4}
@@ -715,21 +715,26 @@ export default function CreateFormPage() {
                                 >
                                   <DatePicker
                                     label="Default Date"
-                                    value={f.defaultValue || null}
-                                    onChange={(newValue) =>
+                                    value={
+                                      f.defaultValue
+                                        ? parseISO(f.defaultValue)
+                                        : null
+                                    }
+                                    onChange={(newValue: Date | null) => {
                                       dispatch(
                                         updateFieldProperty({
                                           id: f.id,
                                           key: "defaultValue",
-                                          value: newValue,
+                                          value: newValue
+                                            ? newValue.toISOString()
+                                            : null,
                                         })
-                                      )
-                                    }
-                                    renderInput={(params) => (
-                                      <TextField
-                                        {...params}
-                                        fullWidth
-                                        sx={{
+                                      );
+                                    }}
+                                    slotProps={{
+                                      textField: {
+                                        fullWidth: true,
+                                        sx: {
                                           mb: 3,
                                           "& .MuiOutlinedInput-root": {
                                             borderRadius: 2,
@@ -743,9 +748,9 @@ export default function CreateFormPage() {
                                               backgroundColor: "white",
                                             },
                                           },
-                                        }}
-                                      />
-                                    )}
+                                        },
+                                      },
+                                    }}
                                   />
                                 </LocalizationProvider>
                               ) : (
