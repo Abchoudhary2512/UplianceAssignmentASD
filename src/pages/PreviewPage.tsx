@@ -1,234 +1,225 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import type { RootState } from "../store";
 import {
+  Box,
+  Typography,
+  Paper,
   TextField,
-  MenuItem,
   FormControlLabel,
   Checkbox,
   Radio,
   RadioGroup,
-  Button,
-  Paper,
-  Typography,
+  FormGroup,
+  MenuItem,
 } from "@mui/material";
+import { useSelector } from "react-redux";
+import { useState } from "react";
+import type { RootState } from "../store";
 
-export default function PreviewPage() {
-  const fields = useSelector((state: RootState) => state.form.currentForm);
-  const [formValues, setFormValues] = useState<{ [key: string]: any }>({});
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+export default function PreviewFormPage() {
+  const form = useSelector((state: RootState) => state.form.currentForm);
+  const [values, setValues] = useState<Record<string, any>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Initialize form values with defaults
-  useEffect(() => {
-    const initValues: Record<string, any> = {};
-    fields.forEach((f) => {
-      initValues[f.id] = f.defaultValue || (f.type === "checkbox" ? false : "");
-    });
-    setFormValues(initValues);
-  }, [fields]);
+  const validateField = (field: any, value: any) => {
+    let error = "";
 
-  // Auto-update derived fields when parents change
-// Auto-update derived fields when parents change
-useEffect(() => {
-  const updatedValues = { ...formValues };
-  let changed = false;
-  
-  fields.forEach((f) => {
-    if (f.derived) {
-      try {
-        const context: Record<string, any> = {};
-        f.derived.parents.forEach((pid) => {
-          context[pid] = formValues[pid];
-        });
-        
-        // Only calculate if all parent values exist
-        if (Object.values(context).every(val => val !== undefined)) {
-          const fn = new Function(
-            ...Object.keys(context),
-            `return ${f.derived!.formula};`
-          );
-          const newVal = fn(...Object.values(context));
-          if (updatedValues[f.id] !== newVal) {
-            updatedValues[f.id] = newVal;
-            changed = true;
-          }
-        }
-      } catch {
-        updatedValues[f.id] = "";
-        changed = true;
+    // Required
+    if (field.required && !value?.toString().trim()) {
+      error = "This field is required";
+    }
+
+    // Min length
+    if (!error && field.validation?.minLength) {
+      if (value?.length < field.validation.minLength) {
+        error = `Minimum length is ${field.validation.minLength}`;
       }
     }
-  });
 
-  if (changed) {
-    setFormValues(updatedValues);
-  }
-}, [fields, JSON.stringify(formValues)]); // Using JSON.stringify to compare object changes
+    // Max length
+    if (!error && field.validation?.maxLength) {
+      if (value?.length > field.validation.maxLength) {
+        error = `Maximum length is ${field.validation.maxLength}`;
+      }
+    }
 
-  // Validate one field
-  const validateField = (fieldId: string, value: any): string => {
-    const field = fields.find((f) => f.id === fieldId);
-    if (!field) return "";
-
-    if (
-      field.required &&
-      (value === "" || value === null || value === undefined)
-    ) {
-      return "This field is required";
-    }
-    if (
-      field.validation?.minLength &&
-      typeof value === "string" &&
-      value.length < field.validation.minLength
-    ) {
-      return `Minimum length is ${field.validation.minLength}`;
-    }
-    if (
-      field.validation?.maxLength &&
-      typeof value === "string" &&
-      value.length > field.validation.maxLength
-    ) {
-      return `Maximum length is ${field.validation.maxLength}`;
-    }
-    if (field.validation?.email) {
+    // Email format
+    if (!error && field.validation?.isEmail) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) return "Invalid email format";
+      if (value && !emailRegex.test(value)) {
+        error = "Invalid email format";
+      }
     }
-    if (field.validation?.passwordRule) {
-      const passwordRegex = /^(?=.*[0-9]).{8,}$/;
-      if (!passwordRegex.test(value))
-        return "Password must be at least 8 characters and contain a number";
+
+    // Password rule
+    if (!error && field.validation?.passwordRule) {
+      const passwordRegex = /^(?=.*\d).{8,}$/;
+      if (value && !passwordRegex.test(value)) {
+        error =
+          "Password must be at least 8 characters and contain a number";
+      }
     }
-    return "";
+
+    return error;
   };
 
-  // Handle input change
   const handleChange = (id: string, value: any) => {
-    const errMsg = validateField(id, value);
-    setErrors((prev) => ({ ...prev, [id]: errMsg }));
-    setFormValues((prev) => ({ ...prev, [id]: value }));
-  };
-
-  // Handle submit
-  const handleSubmit = () => {
-    const newErrors: Record<string, string> = {};
-    fields.forEach((f) => {
-      const errMsg = validateField(f.id, formValues[f.id]);
-      if (errMsg) newErrors[f.id] = errMsg;
-    });
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      alert("Form submitted successfully!\n");
-    }
+    setValues((prev) => ({ ...prev, [id]: value }));
+    setErrors((prev) => ({
+      ...prev,
+      [id]: validateField(form.find((f) => f.id === id), value),
+    }));
   };
 
   return (
-    <Paper sx={{ p: 3, m: 2 }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>
-        Form Preview
+    <Box sx={{ p: 3, maxWidth: 800, mx: "auto" }}>
+      <Typography variant="h5" gutterBottom fontWeight={600}>
+        Preview Form
       </Typography>
-      {fields.length === 0 && (
-        <Typography>
-          No fields to preview. Please create a form first.
+      {form.length === 0 ? (
+        <Typography color="text.secondary">
+          No fields to preview.
         </Typography>
+      ) : (
+        <Paper sx={{ p: 3 }}>
+          {form.map((field) => {
+            const value = values[field.id] || "";
+            const error = errors[field.id] || "";
+
+            switch (field.type) {
+              case "text":
+              case "number":
+              case "date":
+                return (
+                  <TextField
+                    key={field.id}
+                    fullWidth
+                    margin="normal"
+                    type={field.type === "number" ? "number" : field.type}
+                    label={field.label}
+                    value={value}
+                    onChange={(e) => handleChange(field.id, e.target.value)}
+                    error={!!error}
+                    helperText={error}
+                  />
+                );
+              case "textarea":
+                return (
+                  <TextField
+                    key={field.id}
+                    fullWidth
+                    margin="normal"
+                    label={field.label}
+                    value={value}
+                    onChange={(e) => handleChange(field.id, e.target.value)}
+                    error={!!error}
+                    helperText={error}
+                    multiline
+                    minRows={3}
+                  />
+                );
+              case "select":
+                return (
+                  <TextField
+                    key={field.id}
+                    select
+                    fullWidth
+                    margin="normal"
+                    label={field.label}
+                    value={value}
+                    onChange={(e) => handleChange(field.id, e.target.value)}
+                    error={!!error}
+                    helperText={error}
+                  >
+                    {field.options?.map((opt, idx) => (
+                      <MenuItem key={idx} value={opt}>
+                        {opt}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                );
+              case "radio":
+                return (
+                  <Box key={field.id} sx={{ mt: 2 }}>
+                    <Typography variant="subtitle1">
+                      {field.label}
+                    </Typography>
+                    <RadioGroup
+                      value={value}
+                      onChange={(e) =>
+                        handleChange(field.id, e.target.value)
+                      }
+                    >
+                      {field.options?.map((opt, idx) => (
+                        <FormControlLabel
+                          key={idx}
+                          value={opt}
+                          control={<Radio />}
+                          label={opt}
+                        />
+                      ))}
+                    </RadioGroup>
+                    {error && (
+                      <Typography
+                        variant="caption"
+                        color="error"
+                        sx={{ ml: 1 }}
+                      >
+                        {error}
+                      </Typography>
+                    )}
+                  </Box>
+                );
+              case "checkbox":
+                return (
+                  <Box key={field.id} sx={{ mt: 2 }}>
+                    <Typography variant="subtitle1">
+                      {field.label}
+                    </Typography>
+                    <FormGroup>
+                      {field.options?.map((opt, idx) => (
+                        <FormControlLabel
+                          key={idx}
+                          control={
+                            <Checkbox
+                              checked={
+                                Array.isArray(value) &&
+                                value.includes(opt)
+                              }
+                              onChange={(e) => {
+                                let newValue = Array.isArray(value)
+                                  ? [...value]
+                                  : [];
+                                if (e.target.checked) {
+                                  newValue.push(opt);
+                                } else {
+                                  newValue = newValue.filter(
+                                    (v) => v !== opt
+                                  );
+                                }
+                                handleChange(field.id, newValue);
+                              }}
+                            />
+                          }
+                          label={opt}
+                        />
+                      ))}
+                    </FormGroup>
+                    {error && (
+                      <Typography
+                        variant="caption"
+                        color="error"
+                        sx={{ ml: 1 }}
+                      >
+                        {error}
+                      </Typography>
+                    )}
+                  </Box>
+                );
+              default:
+                return null;
+            }
+          })}
+        </Paper>
       )}
-
-      {fields.map((f) => (
-        <div key={f.id} style={{ marginTop: "20px" }}>
-          {/* Text / Number / Date */}
-          {["text", "number", "date"].includes(f.type) && (
-            <TextField
-              type={f.type}
-              label={f.label}
-              value={formValues[f.id] || ""}
-              onChange={(e) => handleChange(f.id, e.target.value)}
-              fullWidth
-              error={!!errors[f.id]}
-              helperText={errors[f.id]}
-              disabled={!!f.derived}
-            />
-          )}
-
-          {/* Textarea */}
-          {f.type === "textarea" && (
-            <TextField
-              multiline
-              minRows={3}
-              label={f.label}
-              value={formValues[f.id] || ""}
-              onChange={(e) => handleChange(f.id, e.target.value)}
-              fullWidth
-              error={!!errors[f.id]}
-              helperText={errors[f.id]}
-              disabled={!!f.derived}
-            />
-          )}
-
-          {/* Select */}
-          {f.type === "select" && (
-            <TextField
-              select
-              label={f.label}
-              value={formValues[f.id] || ""}
-              onChange={(e) => handleChange(f.id, e.target.value)}
-              fullWidth
-              error={!!errors[f.id]}
-              helperText={errors[f.id]}
-              disabled={!!f.derived}
-            >
-              <MenuItem value="">-- Select --</MenuItem>
-              {/* Example static options */}
-              <MenuItem value="option1">Option 1</MenuItem>
-              <MenuItem value="option2">Option 2</MenuItem>
-            </TextField>
-          )}
-
-          {/* Radio */}
-          {f.type === "radio" && (
-            <>
-              <Typography>{f.label}</Typography>
-              <RadioGroup
-                value={formValues[f.id] || ""}
-                onChange={(e) => handleChange(f.id, e.target.value)}
-              >
-                <FormControlLabel
-                  value="option1"
-                  control={<Radio />}
-                  label="Option 1"
-                />
-                <FormControlLabel
-                  value="option2"
-                  control={<Radio />}
-                  label="Option 2"
-                />
-              </RadioGroup>
-              {errors[f.id] && (
-                <Typography color="error">{errors[f.id]}</Typography>
-              )}
-            </>
-          )}
-
-          {/* Checkbox */}
-          {f.type === "checkbox" && (
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={formValues[f.id] || false}
-                  onChange={(e) => handleChange(f.id, e.target.checked)}
-                />
-              }
-              label={f.label}
-            />
-          )}
-        </div>
-      ))}
-
-      {fields.length > 0 && (
-        <Button variant="contained" sx={{ mt: 3 }} onClick={handleSubmit}>
-          Submit
-        </Button>
-      )}
-    </Paper>
+    </Box>
   );
 }

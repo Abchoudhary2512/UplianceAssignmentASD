@@ -1,4 +1,4 @@
-import { createSlice,type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 export type FieldType =
   | "text"
@@ -17,8 +17,8 @@ export interface ValidationRules {
 }
 
 export interface DerivedConfig {
-  parents: string[]; // IDs of parent fields
-  formula: string;   // JS expression, e.g., "2025 - new Date(dob).getFullYear()"
+  parents: string[];
+  formula: string;
 }
 
 export interface FormField {
@@ -29,9 +29,11 @@ export interface FormField {
   defaultValue?: string;
   validation?: ValidationRules;
   derived?: DerivedConfig;
+  options?: string[]; 
 }
 
 export interface FormSchema {
+  updatedAt?: string | number | Date;
   name: string;
   createdAt: string;
   fields: FormField[];
@@ -40,11 +42,13 @@ export interface FormSchema {
 interface FormState {
   currentForm: FormField[];
   savedForms: FormSchema[];
+  submittedValues: Record<string, any>[];
 }
 
 const initialState: FormState = {
   currentForm: [],
   savedForms: JSON.parse(localStorage.getItem("forms") || "[]"),
+  submittedValues: JSON.parse(localStorage.getItem("submissions") || "[]"),
 };
 
 const formSlice = createSlice({
@@ -56,19 +60,14 @@ const formSlice = createSlice({
     },
     updateFieldProperty: (
       state,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       action: PayloadAction<{ id: string; key: keyof FormField; value: any }>
     ) => {
       const field = state.currentForm.find(f => f.id === action.payload.id);
       if (field) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (field as any)[action.payload.key] = action.payload.value;
       }
     },
-    moveField: (
-      state,
-      action: PayloadAction<{ from: number; to: number }>
-    ) => {
+    moveField: (state, action: PayloadAction<{ from: number; to: number }>) => {
       const arr = state.currentForm;
       if (action.payload.to < 0 || action.payload.to >= arr.length) return;
       const [moved] = arr.splice(action.payload.from, 1);
@@ -90,6 +89,10 @@ const formSlice = createSlice({
     loadForm: (state, action: PayloadAction<FormSchema>) => {
       state.currentForm = action.payload.fields;
     },
+    submitFormValues: (state, action: PayloadAction<Record<string, any>>) => {
+      state.submittedValues.push(action.payload);
+      localStorage.setItem("submissions", JSON.stringify(state.submittedValues));
+    },
   },
 });
 
@@ -100,6 +103,7 @@ export const {
   deleteField,
   saveForm,
   loadForm,
+  submitFormValues,
 } = formSlice.actions;
 
 export default formSlice.reducer;
